@@ -5,21 +5,17 @@ from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from deep_translator import GoogleTranslator
 
-# ==========================================
-# ВСТАВЬ СЮДА СВОЙ ТОКЕН ОТ BOTFATHER
-TOKEN = "8581181236:AAEpwkd8PkhTBA1LuESmABso-YjH8J20LyE" 
-# Пример: TOKEN = "603123123:AAFgdfsgsdfg..."
-# ==========================================
 
-# Включаем логирование, чтобы видеть ошибки в терминале
+TOKEN = "8581181236:AAEpwkd8PkhTBA1LuESmABso-YjH8J20LyE" 
+
+
+
+
 logging.basicConfig(level=logging.INFO)
 
-# Создаем объекты бота
+
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
-
-# База данных в памяти (пока бот работает). 
-# Для серьезного проекта нужна SQLite, но для теста хватит этого.
 user_dictionary = {} 
 
 # --- Хэндлер на команду /start ---
@@ -43,7 +39,7 @@ async def cmd_train(message: types.Message):
         await message.answer("Ваш словарь пуст! Сначала переведите пару слов и нажмите 'Сохранить'.")
         return
 
-    # Берем первое попавшееся слово (для примера)
+    
     word, translation = list(user_dictionary[user_id].items())[0]
     
     # Кнопка для проверки
@@ -52,13 +48,13 @@ async def cmd_train(message: types.Message):
     
     await message.answer(f"🧐 Как переводится: **{word}**?", reply_markup=builder.as_markup())
 
-# --- Обработка нажатия кнопки "Показать перевод" ---
+
 @dp.callback_query(F.data.startswith("show_"))
 async def show_translation(callback: types.CallbackQuery):
     translation = callback.data.split("_")[1]
     await callback.message.edit_text(f"Правильный ответ: **{translation}** ✅")
 
-# --- Обработка нажатия кнопки "Сохранить" ---
+
 @dp.callback_query(F.data.startswith("save_"))
 async def save_word(callback: types.CallbackQuery):
     # Формат данных в кнопке: save_СЛОВО_ПЕРЕВОД
