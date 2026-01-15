@@ -55,28 +55,28 @@ async def show_translation(callback: types.CallbackQuery):
     translation = callback.data.split("_")[1]
     await callback.message.edit_text(f"Правильный ответ: **{translation}** ✅")
 
-# --- Обработка нажатия кнопки "Сохранить" ---
+
 @dp.callback_query(F.data.startswith("save_"))
 async def save_word(callback: types.CallbackQuery):
-    # Формат данных в кнопке: save_СЛОВО_ПЕРЕВОД
+
     _, original, translated = callback.data.split("_", 2)
     user_id = callback.from_user.id
     
     if user_id not in user_dictionary:
         user_dictionary[user_id] = {}
     
-    # Сохраняем в память
+ 
     user_dictionary[user_id][original] = translated
     
     await callback.answer("Слово сохранено! 🎉") # Всплывающее уведомление
     await callback.message.edit_text(f"✅ Слово **{original}** добавлено в словарь.\nНажми /train чтобы учить.")
 
-# --- УМНЫЙ ПЕРЕВОДЧИК (Самая главная часть) ---
+
 @dp.message()
 async def translate_message(message: types.Message):
     text = message.text
     
-    # Автоматическое определение: если есть русские буквы, переводим на англ, иначе наоборот
+ 
     if any("\u0400" <= char <= "\u04FF" for char in text):
         src_lang = 'ru'
         target_lang = 'en'
@@ -85,12 +85,12 @@ async def translate_message(message: types.Message):
         target_lang = 'ru'
 
     try:
-        # Сам процесс перевода
+        
         translated_text = GoogleTranslator(source='auto', target=target_lang).translate(text)
         
-        # Создаем кнопку "Сохранить в словарь"
+     
         builder = InlineKeyboardBuilder()
-        # В callback_data есть ограничение по длине, поэтому сохраняем только короткие слова
+      
         if len(text) < 20 and len(translated_text) < 20:
             builder.button(text="➕ Сохранить в словарь", callback_data=f"save_{text}_{translated_text}")
         
@@ -102,9 +102,9 @@ async def translate_message(message: types.Message):
     except Exception as e:
         await message.answer("Не удалось перевести. Попробуйте другое слово.")
 
-# --- ЗАПУСК БОТА ---
+
 async def main():
-    # Удаляем старые обновления, чтобы бот не отвечал на сообщения, присланные пока он спал
+   
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
